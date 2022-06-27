@@ -72,7 +72,7 @@ export const UserDropdown = ({
       </select>{" "}
       <button
         onClick={() => assignUser(ticketId, newUser)}
-        disabled={completed}
+        disabled={completed || settingNewUser}
       >
         Assign
       </button>{" "}

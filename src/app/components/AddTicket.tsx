@@ -22,9 +22,9 @@ export const AddTicket = ({ backend, setFilter }: AddTicketProps) => {
     if (payload.description.length >= 2) {
       setAddingTicket(true);
       setError("");
-      setTicketDescription("");
       const newTicket = backend.newTicket(payload);
       newTicket.subscribe((_) => {
+        setTicketDescription("");
         setAddingTicket(false);
         setFilter("open");
         setFilter("all");
@@ -44,6 +44,7 @@ export const AddTicket = ({ backend, setFilter }: AddTicketProps) => {
         <br />
         <input
           type="text"
+          value={ticketDescription}
           name="Description"
           onChange={(e) => setTicketDescription(e.target.value)}
         />

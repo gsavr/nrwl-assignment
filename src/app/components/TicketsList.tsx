@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { AddTicket } from "./AddTicket";
 import { firstValueFrom } from "rxjs";
 import { BackendService, Ticket } from "../../backend";
@@ -11,44 +11,29 @@ interface TicketsListProps {
 export const TicketsList = ({ backend }: TicketsListProps) => {
   const [tickets, setTickets] = useState([] as Ticket[]);
   const [filter, setFilter] = useState("all");
+  const [loading, setLoading] = useState(false);
 
   //fetch list of tickets from backend
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       const result = await firstValueFrom(backend.tickets());
+      setLoading(false);
       setTickets(result);
     };
     fetchData();
-  }, [backend, tickets]);
-
-  //create list of tickets to display
-  const listOfTickets = (tickets: Ticket[]) => {
-    return tickets.map((t) => (
-      <li key={t.id}>
-        Ticket: {t.id + 1}, {t.description}, {t.completed ? "Closed" : "Open"}{" "}
-        <button>
-          <Link to={`/ticket/${t.id}`}>Details</Link>
-        </button>
-      </li>
-    ));
-  };
+  }, [backend]);
 
   //filter for tickets - all, open, or closed tickets
-  const displayTickets = () => {
+  const displayTickets = useMemo(() => {
     if (filter === "all") {
-      return listOfTickets(tickets);
+      return tickets;
     } else if (filter === "open") {
-      const openTickets = tickets.filter(
-        (ticket) => ticket.completed === false
-      );
-      return listOfTickets(openTickets);
+      return tickets.filter((ticket) => ticket.completed === false);
     } else if (filter === "closed") {
-      const closedTickets = tickets.filter(
-        (ticket) => ticket.completed === true
-      );
-      return listOfTickets(closedTickets);
+      return tickets.filter((ticket) => ticket.completed === true);
     }
-  };
+  }, [filter, tickets]);
 
   return (
     <div>
@@ -56,8 +41,18 @@ export const TicketsList = ({ backend }: TicketsListProps) => {
       <button onClick={() => setFilter("open")}>Open Tickets</button>
       <button onClick={() => setFilter("closed")}>Closed Tickets</button>
       <div>
-        {tickets.length ? (
-          <ul>{displayTickets()}</ul>
+        {!loading ? (
+          <ul>
+            {displayTickets?.map((t) => (
+              <li key={t.id}>
+                Ticket: {t.id + 1}, {t.description},{" "}
+                {t.completed ? "Closed" : "Open"}{" "}
+                <button>
+                  <Link to={`/ticket/${t.id}`}>Details</Link>
+                </button>
+              </li>
+            ))}
+          </ul>
         ) : (
           <div>
             <br />

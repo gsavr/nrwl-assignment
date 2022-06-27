@@ -12,7 +12,7 @@ ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route exact path="/" element={<App backend={backend} />} />
+        <Route path="/" element={<App backend={backend} />} />
         <Route
           path="/ticket/:id"
           element={<TicketDetail backend={backend} />}
